@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CyberNest | Cryptography</title>
+    <link rel="stylesheet" href="/static/theme.css">
+    <script src="/static/utils.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Cryptography Tool</h1>
+
+        <label for="mode">Select Mode:</label>
+        <select id="mode">
+            <option value="custom">Custom Cipher</option>
+            <option value="caesar">Caesar Cipher</option>
+            <option value="vigenere">Vigenère Cipher</option>
+        </select>
+
+        <label for="key">Enter Key:</label>
+        <input type="text" id="key" placeholder="Enter key (number for Caesar, text for Vigenère)">
+
+        <label for="inputText">Input Text:</label>
+        <textarea id="inputText" rows="6" placeholder="Type or paste your message here..."></textarea>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button onclick="encryptText()">Encrypt</button>
+            <button onclick="decryptText()">Decrypt</button>
+            <button onclick="copyToClipboard('outputText')">Copy Output</button>
+            <button onclick="clearFields('inputText', 'outputText')">Clear</button>
+        </div>
+
+        <h3>Output:</h3>
+        <div class="terminal-output" id="outputText"></div>
+
+        <h3>Recent History:</h3>
+        <div class="terminal-output" id="historyLog">No history yet.</div>
+    </div>
+
+    <script>
+        const historyLog = [];
+
+        function encryptText() {
+            const mode = document.getElementById("mode").value;
+            const key = document.getElementById("key").value;
+            const input = document.getElementById("inputText").value;
+
+            let output = '';
+            if (mode === 'custom') {
+                output = btoa(input.split('').reverse().join('') + key);
+            } else if (mode === 'caesar') {
+                const shift = parseInt(key) || 0;
+                output = input.split('').map(char => {
+                    const code = char.charCodeAt(0);
+                    return String.fromCharCode(code + shift);
+                }).join('');
+            } else if (mode === 'vigenere') {
+                const cleanKey = key.toUpperCase().replace(/[^A-Z]/g, '');
+                let j = 0;
+                output = input.split('').map(char => {
+                    if (/[a-zA-Z]/.test(char)) {
+                        const base = char === char.toLowerCase() ? 97 : 65;
+                        const offset = cleanKey.charCodeAt(j % cleanKey.length) - 65;
+                        j++;
+                        return String.fromCharCode((char.charCodeAt(0) - base + offset) % 26 + base);
+                    }
+                    return char;
+                }).join('');
+            }
+
+            document.getElementById("outputText").innerText = output;
+            historyLog.unshift(`🔐 ${mode.toUpperCase()} | Key: ${key} | Result: ${output.substring(0, 50)}...`);
+            if (historyLog.length > 5) historyLog.pop();
+            document.getElementById("historyLog").innerText = historyLog.join('\n');
+        }
+
+        function decryptText() {
+            const mode = document.getElementById("mode").value;
+            const key = document.getElementById("key").value;
+            const input = document.getElementById("inputText").value;
+
+            let output = '';
+            if (mode === 'custom') {
+                try {
+                    output = atob(input).slice(0, -key.length).split('').reverse().join('');
+                } catch {
+                    output = "❌ Invalid custom cipher input.";
+                }
+            } else if (mode === 'caesar') {
+                const shift = parseInt(key) || 0;
+                output = input.split('').map(char => {
+                    const code = char.charCodeAt(0);
+                    return String.fromCharCode(code - shift);
+                }).join('');
+            } else if (mode === 'vigenere') {
+                const cleanKey = key.toUpperCase().replace(/[^A-Z]/g, '');
+                let j = 0;
+                output = input.split('').map(char => {
+                    if (/[a-zA-Z]/.test(char)) {
+                        const base = char === char.toLowerCase() ? 97 : 65;
+                        const offset = cleanKey.charCodeAt(j % cleanKey.length) - 65;
+                        j++;
+                        return String.fromCharCode((char.charCodeAt(0) - base - offset + 26) % 26 + base);
+                    }
+                    return char;
+                }).join('');
+            }
+
+            document.getElementById("outputText").innerText = output;
+            historyLog.unshift(`🔓 ${mode.toUpperCase()} | Key: ${key} | Result: ${output.substring(0, 50)}...`);
+            if (historyLog.length > 5) historyLog.pop();
+            document.getElementById("historyLog").innerText = historyLog.join('\n');
+        }
+    </script>
+</body>
+</html>

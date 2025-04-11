@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CyberNest | CTF Tools</title>
+    <link rel="stylesheet" href="/static/theme.css">
+    <script src="/static/utils.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🕵️ CTF Helper Tools</h1>
+
+        <!-- ROT13 Tool -->
+        <section>
+            <h2>🔄 ROT13 Encoder/Decoder</h2>
+            <textarea id="rot13Input" rows="4" placeholder="Enter text..."></textarea>
+            <button onclick="rot13()">Run ROT13</button>
+            <div class="terminal-output" id="rot13Output"></div>
+        </section>
+
+        <!-- Hash Identifier -->
+        <section>
+            <h2>🔐 Hash Identifier</h2>
+            <input type="text" id="hashInput" placeholder="Enter hash string...">
+            <button onclick="identifyHash()">Identify</button>
+            <div class="terminal-output" id="hashOutput"></div>
+        </section>
+
+        <!-- String Analyzer -->
+        <section>
+            <h2>📏 String Analyzer</h2>
+            <textarea id="analyzerInput" rows="4" placeholder="Enter string to analyze..."></textarea>
+            <button onclick="analyzeString()">Analyze</button>
+            <div class="terminal-output" id="analyzerOutput"></div>
+        </section>
+
+        <!-- URL Encoder/Decoder -->
+        <section>
+            <h2>🌐 URL Encoder/Decoder</h2>
+            <textarea id="urlInput" rows="3" placeholder="Enter URL or string..."></textarea>
+            <div style="display:flex;gap:10px;">
+                <button onclick="encodeURL()">Encode</button>
+                <button onclick="decodeURL()">Decode</button>
+            </div>
+            <div class="terminal-output" id="urlOutput"></div>
+        </section>
+    </div>
+
+    <script>
+        function rot13() {
+            const input = document.getElementById("rot13Input").value;
+            const output = input.replace(/[a-zA-Z]/g, function(c) {
+                const base = c <= 'Z' ? 65 : 97;
+                return String.fromCharCode((c.charCodeAt(0) - base + 13) % 26 + base);
+            });
+            document.getElementById("rot13Output").innerText = output;
+        }
+
+        function identifyHash() {
+            const hash = document.getElementById("hashInput").value.trim();
+            let type = "Unknown";
+            if (/^[a-f0-9]{32}$/i.test(hash)) type = "MD5";
+            else if (/^[a-f0-9]{40}$/i.test(hash)) type = "SHA-1";
+            else if (/^[a-f0-9]{64}$/i.test(hash)) type = "SHA-256";
+            else if (/^[a-f0-9]{128}$/i.test(hash)) type = "SHA-512";
+            document.getElementById("hashOutput").innerText = `Detected: ${type}`;
+        }
+
+        function analyzeString() {
+            const str = document.getElementById("analyzerInput").value;
+            const length = str.length;
+            const freq = {};
+            for (let char of str) {
+                freq[char] = (freq[char] || 0) + 1;
+            }
+            const entropy = Object.values(freq).reduce((acc, f) => {
+                const p = f / length;
+                return acc - p * Math.log2(p);
+            }, 0).toFixed(3);
+            const output = `Length: ${length}\nEntropy: ${entropy}\nCharacter Frequency:\n` +
+                           Object.entries(freq).map(([k, v]) => `'${k}': ${v}`).join("\n");
+            document.getElementById("analyzerOutput").innerText = output;
+        }
+
+        function encodeURL() {
+            const input = document.getElementById("urlInput").value;
+            document.getElementById("urlOutput").innerText = encodeURIComponent(input);
+        }
+
+        function decodeURL() {
+            const input = document.getElementById("urlInput").value;
+            document.getElementById("urlOutput").innerText = decodeURIComponent(input);
+        }
+    </script>
+</body>
+</html>

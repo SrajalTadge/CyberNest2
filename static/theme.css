@@ -1,0 +1,38 @@
+
+body {
+    background-color: #0d1117;
+    color: #c9d1d9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+textarea, input, select {
+    background-color: #161b22;
+    color: #ffffff;
+    border: 1px solid #30363d;
+    padding: 8px;
+    border-radius: 6px;
+    width: 100%;
+}
+button {
+    background-color: #8000ff;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    margin-top: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+button:hover {
+    background-color: #9b4dff;
+    box-shadow: 0 0 10px #8000ff;
+}
+.terminal-output {
+    background: #1e1e2f;
+    color: #39ff14;
+    font-family: monospace;
+    padding: 1rem;
+    border-left: 4px solid #39ff14;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    border-radius: 6px;
+}

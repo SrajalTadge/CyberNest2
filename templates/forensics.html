@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CyberNest | Digital Forensics</title>
+    <link rel="stylesheet" href="/static/theme.css">
+    <script src="/static/utils.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Digital Forensics Tools</h1>
+
+        <!-- File Reader + Editor -->
+        <section>
+            <h2>📂 File Reader & Editor</h2>
+            <input type="file" id="fileInput" accept=".txt,.log,.csv">
+            <textarea id="fileContent" rows="10" placeholder="File content will appear here..."></textarea>
+            <button onclick="downloadEditedFile()">Download Edited</button>
+        </section>
+
+        <!-- Metadata Extractor (client-side limited) -->
+        <section>
+            <h2>🧾 Metadata Extractor (basic)</h2>
+            <input type="file" id="metaInput" accept=".jpg,.png,.pdf">
+            <div class="terminal-output" id="metaOutput">Upload a file to extract metadata.</div>
+        </section>
+
+        <!-- Keyword Finder -->
+        <section>
+            <h2>🔍 Keyword Finder</h2>
+            <input type="text" id="keyword" placeholder="Enter keyword to search">
+            <button onclick="searchKeyword()">Search</button>
+            <div class="terminal-output" id="keywordResult">Keyword search results will appear here.</div>
+        </section>
+
+        <!-- Hex Viewer -->
+        <section>
+            <h2>🧬 Hex Viewer</h2>
+            <input type="file" id="hexInput">
+            <div class="terminal-output" id="hexOutput">Upload a file to view hex data.</div>
+        </section>
+
+        <!-- File Signature Detector -->
+        <section>
+            <h2>🪪 File Signature Detector</h2>
+            <input type="file" id="sigInput">
+            <div class="terminal-output" id="sigOutput">Upload a file to detect true type.</div>
+        </section>
+    </div>
+
+    <script>
+        document.getElementById("fileInput").addEventListener("change", function () {
+            const reader = new FileReader();
+            reader.onload = function () {
+                document.getElementById("fileContent").value = reader.result;
+            };
+            reader.readAsText(this.files[0]);
+        });
+
+        function downloadEditedFile() {
+            const text = document.getElementById("fileContent").value;
+            const blob = new Blob([text], { type: "text/plain" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "edited_file.txt";
+            a.click();
+        }
+
+        document.getElementById("metaInput").addEventListener("change", function () {
+            const file = this.files[0];
+            const output = document.getElementById("metaOutput");
+            if (file) {
+                output.innerText = `Name: ${file.name}\nSize: ${file.size} bytes\nType: ${file.type}\nLast Modified: ${file.lastModifiedDate}`;
+            }
+        });
+
+        function searchKeyword() {
+            const text = document.getElementById("fileContent").value.toLowerCase();
+            const keyword = document.getElementById("keyword").value.toLowerCase();
+            let count = 0;
+            if (keyword) {
+                count = text.split(keyword).length - 1;
+            }
+            document.getElementById("keywordResult").innerText = `🔍 Found '${keyword}' ${count} time(s).`;
+        }
+
+        document.getElementById("hexInput").addEventListener("change", function () {
+            const file = this.files[0];
+            const reader = new FileReader();
+            reader.onload = function () {
+                const bytes = new Uint8Array(reader.result);
+                const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join(" ");
+                document.getElementById("hexOutput").innerText = hex.substring(0, 512) + " ...";
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        document.getElementById("sigInput").addEventListener("change", function () {
+            const file = this.files[0];
+            const reader = new FileReader();
+            reader.onload = function () {
+                const bytes = new Uint8Array(reader.result);
+                const header = bytes.slice(0, 4).join(" ");
+                let type = "Unknown";
+                if (header === "255 216 255 224") type = "JPEG";
+                else if (header === "137 80 78 71") type = "PNG";
+                else if (header === "37 80 68 70") type = "PDF";
+                document.getElementById("sigOutput").innerText = `File Signature: ${header}\nDetected Type: ${type}`;
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+</body>
+</html>
